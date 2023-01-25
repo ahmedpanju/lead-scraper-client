@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Flex } from "rebass";
 import { CSVLink } from "react-csv";
 import { Button, CircularProgress, Pagination, TextField } from "@mui/material";
 
 import useGithubQuery from "../../hooks/useGithubQuery";
+import useAddToAirtable from "../../hooks/useAddToAirtable";
+import useFetchAllFromAirtable from "../../hooks/useFetchAllFromAirtable";
 
 const Github = () => {
+  const addToAirtableHook = useAddToAirtable();
   const githubQueryHook = useGithubQuery();
+  const fetchAllFromAirtalbeHook = useFetchAllFromAirtable();
+
+  useEffect(() => {
+    fetchAllFromAirtalbeHook.fetchAll();
+  }, []);
 
   return (
     <div>
@@ -21,7 +29,8 @@ const Github = () => {
           }
         />
       </Flex>
-      {githubQueryHook.isLoadingState ? (
+      {githubQueryHook.isLoadingState ||
+      fetchAllFromAirtalbeHook.isLoadingState ? (
         <CircularProgress />
       ) : (
         <Button
@@ -48,45 +57,75 @@ const Github = () => {
             <th style={{ textAlign: "left" }}>Twitter</th>
             <th style={{ textAlign: "left" }}>Github</th>
             <th style={{ textAlign: "left" }}>Blog</th>
+            <th style={{ textAlign: "left" }}>Add To Airtable</th>
           </tr>
-          {githubQueryHook.queryResponseState.map((singleUser) => (
-            <tr key={singleUser.username}>
-              <td>{singleUser.name}</td>
-              <td>{singleUser.username}</td>
-              <td>{singleUser.email}</td>
-              <td>{singleUser.bio}</td>
-              <td>{singleUser.hireable}</td>
-              <td>{singleUser.location}</td>
-              <td>{singleUser.company}</td>
-              <td>
-                {singleUser.twitter === "N/A" ? (
-                  "N/A"
-                ) : (
-                  <a target="_blank" href={singleUser.twitter} rel="noreferrer">
+          {githubQueryHook.queryResponseState.map((singleUser) => {
+            const shouldShowAirtableButton =
+              !fetchAllFromAirtalbeHook.listOfUsernamesState.includes(
+                singleUser.username
+              );
+
+            return (
+              <tr key={singleUser.username}>
+                <td>{singleUser.name}</td>
+                <td>{singleUser.username}</td>
+                <td>{singleUser.email}</td>
+                <td>{singleUser.bio}</td>
+                <td>{singleUser.hireable}</td>
+                <td>{singleUser.location}</td>
+                <td>{singleUser.company}</td>
+                <td>
+                  {singleUser.twitter === "N/A" ? (
+                    "N/A"
+                  ) : (
+                    <a
+                      target="_blank"
+                      href={singleUser.twitter}
+                      rel="noreferrer"
+                    >
+                      Link
+                    </a>
+                  )}
+                </td>
+                <td>
+                  <a
+                    target="_blank"
+                    href={singleUser.githubProfile}
+                    rel="noreferrer"
+                  >
                     Link
                   </a>
-                )}
-              </td>
-              <td>
-                <a
-                  target="_blank"
-                  href={singleUser.githubProfile}
-                  rel="noreferrer"
-                >
-                  Link
-                </a>
-              </td>
-              <td>
-                {singleUser.blog === "N/A" ? (
-                  "N/A"
-                ) : (
-                  <a target="_blank" href={singleUser.blog} rel="noreferrer">
-                    Link
-                  </a>
-                )}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td>
+                  {singleUser.blog === "N/A" ? (
+                    "N/A"
+                  ) : (
+                    <a target="_blank" href={singleUser.blog} rel="noreferrer">
+                      Link
+                    </a>
+                  )}
+                </td>
+                <td>
+                  {addToAirtableHook.isLoadingState ? (
+                    <CircularProgress />
+                  ) : shouldShowAirtableButton ? (
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        addToAirtableHook.addRecord({
+                          payload: singleUser,
+                        })
+                      }
+                    >
+                      Add
+                    </Button>
+                  ) : (
+                    <div>Already Added</div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </table>
       )}
       <Pagination
