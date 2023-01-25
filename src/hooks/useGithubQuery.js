@@ -14,7 +14,7 @@ const useGithubQuery = () => {
     try {
       setIsLoadingState(true);
       const newQueryResponse = await axios.post(
-        "http://localhost:8080/github/new-query",
+        `${process.env.REACT_APP_API_URL}/github/new-query`,
         {
           query: currentQueryState,
           pageNumber: pageNumber || currentPageNumberState,
