@@ -11,6 +11,9 @@ const Home = () => {
       <Button variant="outlined" onClick={() => navigate("/github")}>
         GITHUB
       </Button>
+      <Button variant="outlined" onClick={() => navigate("/twitter")}>
+        TWITTER
+      </Button>
     </div>
   );
 };

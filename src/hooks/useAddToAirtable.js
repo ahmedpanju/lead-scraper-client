@@ -15,7 +15,6 @@ const useAddToAirtable = () => {
 
       toast.success("Record Added");
     } catch (error) {
-      console.log(error);
       toast.error("Oops! Something went wrong!");
     } finally {
       setIsLoadingState(false);

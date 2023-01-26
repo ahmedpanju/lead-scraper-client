@@ -5,6 +5,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Github from "./pages/Github";
 import Home from "./pages/Home";
+import Twitter from "./pages/Twitter";
+import UsersProvider from "./context/users";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -16,12 +18,18 @@ const App = () => {
       path: "/github",
       element: <Github />,
     },
+    {
+      path: "/twitter",
+      element: <Twitter />,
+    },
   ]);
 
   return (
     <div>
-      <RouterProvider router={router} />
-      <ToastContainer position="bottom-center" />
+      <UsersProvider>
+        <RouterProvider router={router} />
+        <ToastContainer position="bottom-center" />
+      </UsersProvider>
     </div>
   );
 };

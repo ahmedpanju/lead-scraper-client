@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Flex } from "rebass";
 import { CSVLink } from "react-csv";
 import { Button, CircularProgress, Pagination, TextField } from "@mui/material";
@@ -6,8 +6,14 @@ import { Button, CircularProgress, Pagination, TextField } from "@mui/material";
 import useGithubQuery from "../../hooks/useGithubQuery";
 import useAddToAirtable from "../../hooks/useAddToAirtable";
 import useFetchAllFromAirtable from "../../hooks/useFetchAllFromAirtable";
+import SingleGithubRow from "../../components/SingleGithubRow";
+import EmailModal from "../../components/EmailModal";
+import useOpenAiChat from "../../hooks/useOpenAiChat";
+import { UsersContext } from "../../context/users";
 
 const Github = () => {
+  const openAiChat = useOpenAiChat();
+  const usersContext = useContext(UsersContext);
   const addToAirtableHook = useAddToAirtable();
   const githubQueryHook = useGithubQuery();
   const fetchAllFromAirtalbeHook = useFetchAllFromAirtable();
@@ -29,24 +35,35 @@ const Github = () => {
           }
         />
       </Flex>
-      {githubQueryHook.isLoadingState ||
-      fetchAllFromAirtalbeHook.isLoadingState ? (
-        <CircularProgress />
-      ) : (
+      <Flex>
+        {githubQueryHook.isLoadingState ||
+        fetchAllFromAirtalbeHook.isLoadingState ? (
+          <CircularProgress />
+        ) : (
+          <Button
+            onClick={() => {
+              githubQueryHook.newQuery({ pageNumber: 1 });
+            }}
+            variant="outlined"
+          >
+            Search
+          </Button>
+        )}
         <Button
-          onClick={() => {
-            githubQueryHook.newQuery({ pageNumber: 1 });
-          }}
           variant="outlined"
+          onClick={() =>
+            openAiChat.newPrompt({ users: usersContext.selectedUsersState })
+          }
         >
-          Search
+          Bulk Generate Emails
         </Button>
-      )}
+      </Flex>
       {githubQueryHook.isLoadingState ? (
         <CircularProgress />
       ) : (
         <table>
           <tr>
+            <th style={{ textAlign: "left" }}>Select</th>
             <th style={{ textAlign: "left" }}>Name</th>
             <th style={{ textAlign: "left" }}>Username</th>
             <th style={{ textAlign: "left" }}>Email</th>
@@ -58,6 +75,7 @@ const Github = () => {
             <th style={{ textAlign: "left" }}>Github</th>
             <th style={{ textAlign: "left" }}>Blog</th>
             <th style={{ textAlign: "left" }}>Add To Airtable</th>
+            <th style={{ textAlign: "left" }}>Prompt</th>
           </tr>
           {githubQueryHook.queryResponseState.map((singleUser) => {
             const shouldShowAirtableButton =
@@ -66,64 +84,12 @@ const Github = () => {
               );
 
             return (
-              <tr key={singleUser.username}>
-                <td>{singleUser.name}</td>
-                <td>{singleUser.username}</td>
-                <td>{singleUser.email}</td>
-                <td>{singleUser.bio}</td>
-                <td>{singleUser.hireable}</td>
-                <td>{singleUser.location}</td>
-                <td>{singleUser.company}</td>
-                <td>
-                  {singleUser.twitter === "N/A" ? (
-                    "N/A"
-                  ) : (
-                    <a
-                      target="_blank"
-                      href={singleUser.twitter}
-                      rel="noreferrer"
-                    >
-                      Link
-                    </a>
-                  )}
-                </td>
-                <td>
-                  <a
-                    target="_blank"
-                    href={singleUser.githubProfile}
-                    rel="noreferrer"
-                  >
-                    Link
-                  </a>
-                </td>
-                <td>
-                  {singleUser.blog === "N/A" ? (
-                    "N/A"
-                  ) : (
-                    <a target="_blank" href={singleUser.blog} rel="noreferrer">
-                      Link
-                    </a>
-                  )}
-                </td>
-                <td>
-                  {addToAirtableHook.isLoadingState ? (
-                    <CircularProgress />
-                  ) : shouldShowAirtableButton ? (
-                    <Button
-                      variant="outlined"
-                      onClick={() =>
-                        addToAirtableHook.addRecord({
-                          payload: singleUser,
-                        })
-                      }
-                    >
-                      Add
-                    </Button>
-                  ) : (
-                    <div>Already Added</div>
-                  )}
-                </td>
-              </tr>
+              <SingleGithubRow
+                key={singleUser.username}
+                singleUser={singleUser}
+                addToAirtableHook={addToAirtableHook}
+                shouldShowAirtableButton={shouldShowAirtableButton}
+              />
             );
           })}
         </table>
@@ -134,6 +100,7 @@ const Github = () => {
         count={Math.round(githubQueryHook.queryTotalCountState / 100)}
       />
       <CSVLink data={githubQueryHook.queryCsvDataState}>Export To CSV</CSVLink>
+      <EmailModal />
     </div>
   );
 };
