@@ -12,7 +12,7 @@ const useOpenAiChat = () => {
     try {
       setIsLoadingState(true);
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/openAi/new-prompt`,
+        `${process.env.REACT_APP_API_URL}/openAi/new-prompt-multi`,
         {
           users,
         }

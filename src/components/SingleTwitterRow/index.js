@@ -10,8 +10,10 @@ import {
 } from "@mui/material";
 import convertSocialDataToPrompt from "../../utils/convertSocialDataToPrompt";
 import { UsersContext } from "../../context/users";
+import { useNavigate } from "react-router-dom";
 
 const SingleTwitterRow = ({ singleUser }) => {
+  const navigate = useNavigate();
   const [userIsSelectedState, setUserIsSelected] = useState(false);
   const usersContext = useContext(UsersContext);
 
@@ -45,6 +47,8 @@ const SingleTwitterRow = ({ singleUser }) => {
     }
   }, [userIsSelectedState]);
 
+  const quality = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+
   return (
     <tr>
       <td>
@@ -54,6 +58,7 @@ const SingleTwitterRow = ({ singleUser }) => {
         />
       </td>
       <td>{singleUser.screenname}</td>
+      <td>{`${quality}%`}</td>
       <td>{singleUser.bio}</td>
       <td>{singleUser.followers}</td>
       <td>{singleUser.location}</td>
@@ -82,6 +87,23 @@ const SingleTwitterRow = ({ singleUser }) => {
             />
           </DialogContent>
         </Dialog>
+      </td>
+      <td>
+        <Button
+          onClick={() =>
+            navigate("/lead", {
+              state: {
+                user: {
+                  ...singleUser,
+                  quality,
+                  prompt: promptTextState,
+                },
+              },
+            })
+          }
+        >
+          View Lead
+        </Button>
       </td>
     </tr>
   );

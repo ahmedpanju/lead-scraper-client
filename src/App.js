@@ -6,7 +6,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Github from "./pages/Github";
 import Home from "./pages/Home";
 import Twitter from "./pages/Twitter";
+import Lead from "./pages/Lead";
 import UsersProvider from "./context/users";
+import SearchProvider from "./context/search";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -22,14 +24,20 @@ const App = () => {
       path: "/twitter",
       element: <Twitter />,
     },
+    {
+      path: "/lead",
+      element: <Lead />,
+    },
   ]);
 
   return (
     <div>
-      <UsersProvider>
-        <RouterProvider router={router} />
-        <ToastContainer position="bottom-center" />
-      </UsersProvider>
+      <SearchProvider>
+        <UsersProvider>
+          <RouterProvider router={router} />
+          <ToastContainer position="bottom-center" />
+        </UsersProvider>
+      </SearchProvider>
     </div>
   );
 };

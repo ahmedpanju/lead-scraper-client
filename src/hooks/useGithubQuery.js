@@ -10,13 +10,13 @@ const useGithubQuery = () => {
   const [queryTotalCountState, setQueryTotalCountState] = useState(0);
   const [isLoadingState, setIsLoadingState] = useState(false);
 
-  const newQuery = async ({ pageNumber = null } = {}) => {
+  const newQuery = async ({ pageNumber = null, query = "" } = {}) => {
     try {
       setIsLoadingState(true);
       const newQueryResponse = await axios.post(
         `${process.env.REACT_APP_API_URL}/github/new-query`,
         {
-          query: currentQueryState,
+          query: query || currentQueryState,
           pageNumber: pageNumber || currentPageNumberState,
         }
       );
@@ -30,11 +30,11 @@ const useGithubQuery = () => {
     }
   };
 
-  useEffect(() => {
-    if (currentPageNumberState) {
-      newQuery();
-    }
-  }, [currentPageNumberState]);
+  // useEffect(() => {
+  //   if (currentPageNumberState) {
+  //     newQuery();
+  //   }
+  // }, [currentPageNumberState]);
 
   return {
     newQuery,
