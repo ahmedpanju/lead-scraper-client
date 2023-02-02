@@ -9,11 +9,12 @@ import Title from "../../components/Title";
 
 import * as LeadUtils from "./utils";
 import * as Styled from "./styles";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress, TextField } from "@mui/material";
 import SecondaryTitle from "../../components/SecondaryTitle";
 import LinkText from "../../components/LinkText";
 import LeadDetailModal from "../../components/Lead/LeadDetailModal";
 import RegularText from "../../components/RegularText";
+import useOpenAiChat from "../../hooks/useOpenAiChat";
 
 const Lead = () => {
   const [leadDetailsModalState, setLeadDetailsModalState] = useState(false);
@@ -25,35 +26,46 @@ const Lead = () => {
   const [qualityIsLoadingState, setQualityIsLoadingState] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const user = R.path(["state", "user"], location);
 
+  console.log(location.state);
+  const user = R.path(["state", "user"], location);
+  const prompt = R.path(["state", "prompt"], location);
+  const [messageState, setMessageState] = useState("");
+  const [subjectState, setSubjectState] = useState("");
+
+  const openAiHook = useOpenAiChat();
   const nameOfUser = R.pathOr("", ["name"], user);
 
-  const determineLeadQuality = async () => {
-    try {
-      setQualityIsLoadingState(true);
-      const qualityResponse = await axios.post(
-        `${process.env.REACT_APP_API_URL}/github/lead-quality`,
-        {
-          username: user.username,
-          followers: user.followers,
-        }
-      );
-      setQualityDetailsState(qualityResponse.data);
-    } catch (error) {
-      toast.error("Oops! Something went wrong!");
-    } finally {
-      setQualityIsLoadingState(false);
-    }
-  };
+  // const determineLeadQuality = async () => {
+  //   try {
+  //     setQualityIsLoadingState(true);
+  //     const qualityResponse = await axios.post(
+  //       `${process.env.REACT_APP_API_URL}/github/lead-quality`,
+  //       {
+  //         username: user.username,
+  //         followers: user.followers,
+  //       }
+  //     );
+  //     setQualityDetailsState(qualityResponse.data);
+  //   } catch (error) {
+  //     toast.error("Oops! Something went wrong!");
+  //   } finally {
+  //     setQualityIsLoadingState(false);
+  //   }
+  // };
 
   useEffect(() => {
     if (!user) {
       navigate("/");
     } else {
-      determineLeadQuality();
+      if (prompt) {
+        openAiHook.newPrompt(prompt, setMessageState);
+      }
+      // determineLeadQuality();
     }
   }, []);
+
+  console.log(prompt);
 
   return qualityIsLoadingState ? (
     <Styled.LoadingContainer>
@@ -116,6 +128,49 @@ const Lead = () => {
               )}
             </Flex>
           </Flex>
+          {openAiHook.isLoadingState ? (
+            <CircularProgress />
+          ) : (
+            <Flex mt="20px" flexDirection="column">
+              <Flex mb="10px">
+                {user.email || "No Email"}
+                <Button
+                  variant="outlined"
+                  onClick={() => navigator.clipboard.writeText(user.email)}
+                >
+                  Copy Message
+                </Button>
+              </Flex>
+              <Flex alignItems="center" mb="10px">
+                <TextField
+                  style={{ width: "600px", marginRight: "10px" }}
+                  multiline
+                  rows={5}
+                  value={messageState}
+                  onChange={(event) => setMessageState(event.target.value)}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => navigator.clipboard.writeText(messageState)}
+                >
+                  Copy Message
+                </Button>
+              </Flex>
+              <Flex alignItems="center" mb="20px">
+                <TextField
+                  style={{ width: "600px", marginRight: "10px" }}
+                  value={subjectState}
+                  onChange={(event) => setSubjectState(event.target.value)}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => navigator.clipboard.writeText(subjectState)}
+                >
+                  Copy Message
+                </Button>
+              </Flex>
+            </Flex>
+          )}
           <LeadDetailModal
             onClose={() => setLeadDetailsModalState(false)}
             open={leadDetailsModalState}

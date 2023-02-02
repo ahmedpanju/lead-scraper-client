@@ -7,16 +7,23 @@ const convertSocialDataToPrompt = ({
   location,
   company,
   url,
+  type,
 }) => {
-  return `${openAi.ACT_AS.seniorCopywriter}${openAi.JOB.writeEmailIntroToDev}${
-    openAi.PURPOSE.askThemToWorkOnAProject
-  }${openAi.PROPERTIES.name(name)}${openAi.PROPERTIES.description(
-    description
-  )}${openAi.PROPERTIES.hireable(hireable)}${openAi.PROPERTIES.location(
+  return `${openAi.ACT_AS.seniorCopywriter}${
+    type === "FOUNDER"
+      ? openAi.ACT_AS.urlForFounders
+      : openAi.ACT_AS.urlForInvestors
+  }${
+    type === "FOUNDER"
+      ? openAi.JOB.writeEmailIntroToFounder
+      : openAi.JOB.writeEmailIntroToInvestor
+  }${
+    type === "FOUNDER"
+      ? openAi.PURPOSE.askThemToSendAPitchAboutTheirProduct
+      : openAi.PURPOSE.askThemToSendAPitchAboutTheirFund
+  }${openAi.PROPERTIES.name(name)}${openAi.PROPERTIES.location(
     location
-  )}${openAi.PROPERTIES.company(company)}${openAi.PROPERTIES.url(url)}${
-    openAi.TONALITY.friendly
-  }`;
+  )}${openAi.PROPERTIES.url(url)}${openAi.TONALITY.friendly}`;
 };
 
 export default convertSocialDataToPrompt;

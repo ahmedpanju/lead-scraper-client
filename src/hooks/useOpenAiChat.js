@@ -8,16 +8,17 @@ const useOpenAiChat = () => {
   const usersContext = useContext(UsersContext);
   const [isLoadingState, setIsLoadingState] = useState(false);
 
-  const newPrompt = async ({ users }) => {
+  const newPrompt = async (prompt, setMessageState) => {
     try {
       setIsLoadingState(true);
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/openAi/new-prompt-multi`,
+        `${process.env.REACT_APP_API_URL}/openAi/new-prompt`,
         {
-          users,
+          prompt,
         }
       );
-      usersContext.setGeneratedResponsesState(response.data);
+      // usersContext.setGeneratedResponsesState(response.data);
+      setMessageState(response.data);
     } catch (error) {
       toast.error("Oops! Something went wrong!");
     } finally {
@@ -25,11 +26,11 @@ const useOpenAiChat = () => {
     }
   };
 
-  useEffect(() => {
-    if (R.length(usersContext.generatedResponsesState)) {
-      usersContext.setShowEmailModal(true);
-    }
-  }, [usersContext.generatedResponsesState]);
+  // useEffect(() => {
+  //   if (R.length(usersContext.generatedResponsesState)) {
+  //     usersContext.setShowEmailModal(true);
+  //   }
+  // }, [usersContext.generatedResponsesState]);
 
   return {
     isLoadingState,
