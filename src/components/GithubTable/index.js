@@ -9,13 +9,11 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import convertSocialDataToPrompt from "../../utils/convertSocialDataToPrompt";
 
 const GithubTable = ({
   githubData,
   fetchAllFromAirtalbeHook,
   addToAirtableHook,
-  originalSearchPrompt,
 }) => {
   const navigate = useNavigate();
 
@@ -44,24 +42,13 @@ const GithubTable = ({
               style={{ cursor: "pointer", marginBottom: "4px" }}
               hover
               key={row.username}
-              // onClick={() =>
-              //   navigate("/lead", {
-              //     state: {
-              //       user: row,
-              //       prompt: convertSocialDataToPrompt({
-              //         name: row.name,
-              //         description: row.bio,
-              //         hireable: row.hireable,
-              //         location: row.location,
-              //         company: row.company,
-              //         url: row.url,
-              //         type: originalSearchPrompt.includes("founder")
-              //           ? "FOUNDER"
-              //           : "INVESTOR",
-              //       }),
-              //     },
-              //   })
-              // }
+              onClick={() =>
+                navigate("/lead", {
+                  state: {
+                    user: row,
+                  },
+                })
+              }
             >
               <TableCell align="left">{row.name}</TableCell>
               <TableCell align="left">{row.username}</TableCell>

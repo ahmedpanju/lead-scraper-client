@@ -30,11 +30,11 @@ const useGithubQuery = () => {
     }
   };
 
-  useEffect(() => {
-    if (currentPageNumberState) {
-      newQuery();
-    }
-  }, [currentPageNumberState]);
+  // useEffect(() => {
+  //   if (currentPageNumberState) {
+  //     newQuery();
+  //   }
+  // }, [currentPageNumberState]);
 
   return {
     newQuery,
